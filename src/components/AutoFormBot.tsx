@@ -1,10 +1,10 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mic, FileText, Zap } from 'lucide-react';
 import { jsPDF } from 'jspdf';
+import EditableFormFields from './EditableFormFields';
 
 type FormField = {
   name: string;
@@ -23,6 +23,7 @@ const AutoFormBot = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processedData, setProcessedData] = useState<ProcessedFormData | null>(null);
   const [isListening, setIsListening] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const processWithAI = async (inputText: string) => {
     setIsProcessing(true);
@@ -93,6 +94,20 @@ const AutoFormBot = () => {
     doc.save(`${processedData.formType.replace(/\s+/g, '-').toLowerCase()}.pdf`);
   };
 
+  const handleSaveEdits = (updatedFields: FormField[]) => {
+    if (processedData) {
+      setProcessedData({
+        ...processedData,
+        fields: updatedFields
+      });
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <Card>
@@ -149,7 +164,7 @@ const AutoFormBot = () => {
       </Card>
 
       {/* AI Processing Results */}
-      {processedData && (
+      {processedData && !isEditing && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -182,13 +197,26 @@ const AutoFormBot = () => {
                 <Button onClick={generatePDF} className="flex-1">
                   Generate Filled PDF
                 </Button>
-                <Button variant="outline" className="flex-1">
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => setIsEditing(true)}
+                >
                   Edit Fields
                 </Button>
               </div>
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Edit Mode */}
+      {processedData && isEditing && (
+        <EditableFormFields
+          fields={processedData.fields}
+          onSave={handleSaveEdits}
+          onCancel={handleCancelEdit}
+        />
       )}
     </div>
   );
