@@ -1,10 +1,11 @@
-
 import Hero from "@/components/Hero";
 import Stepper from "@/components/Stepper";
 import FormSelector from "@/components/FormSelector";
 import InputSection from "@/components/InputSection";
 import OutputSection from "@/components/OutputSection";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const formOptions = [
   { label: "Form 25 - Affidavit", value: "form_25" },
@@ -15,6 +16,7 @@ const formOptions = [
 ];
 
 export default function Index() {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [selectedForm, setSelectedForm] = useState(formOptions[0]);
   const [inputData, setInputData] = useState("");
@@ -32,7 +34,29 @@ export default function Index() {
     <div className="min-h-screen bg-background flex flex-col items-center px-0 py-12">
       <div className="w-full max-w-5xl mx-auto flex flex-col gap-8">
         <Hero />
+        
+        {/* AutoFormBot CTA */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold text-blue-900 mb-2">
+                🤖 Try AutoFormBot - AI-Powered Form Filling
+              </h2>
+              <p className="text-blue-700">
+                Describe your case in plain English and let AI automatically fill your legal forms
+              </p>
+            </div>
+            <Button 
+              onClick={() => navigate('/autoformbot')}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium shadow-lg"
+            >
+              Launch AutoFormBot
+            </Button>
+          </div>
+        </div>
+        
         <Stepper step={step} setStep={setStep} />
+        
         <div className="bg-card shadow-lg rounded-xl px-8 py-8 transition-all min-h-[320px]">
           {step === 1 && (
             <FormSelector

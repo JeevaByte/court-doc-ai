@@ -1,0 +1,171 @@
+
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Mic, FileText, Zap } from 'lucide-react';
+
+type FormField = {
+  name: string;
+  value: string;
+  type: 'text' | 'date' | 'checkbox' | 'signature';
+};
+
+type ProcessedFormData = {
+  formType: string;
+  fields: FormField[];
+  confidence: number;
+};
+
+const AutoFormBot = () => {
+  const [prompt, setPrompt] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processedData, setProcessedData] = useState<ProcessedFormData | null>(null);
+  const [isListening, setIsListening] = useState(false);
+
+  const processWithAI = async (inputText: string) => {
+    setIsProcessing(true);
+    
+    // Simulate AI processing - in real implementation, this would call GPT API
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Mock AI response for Form 25 (Affidavit)
+    const mockResponse: ProcessedFormData = {
+      formType: 'Form 25 - Affidavit',
+      fields: [
+        { name: 'Court File Number', value: 'CV-2024-001234', type: 'text' },
+        { name: 'Plaintiff Name', value: 'John Smith', type: 'text' },
+        { name: 'Defendant Name', value: 'ABC Company Ltd.', type: 'text' },
+        { name: 'Affiant Name', value: 'John Smith', type: 'text' },
+        { name: 'Date of Incident', value: '2024-01-15', type: 'date' },
+        { name: 'Amount Claimed', value: '$5,000.00', type: 'text' },
+        { name: 'Statement of Facts', value: inputText.substring(0, 200) + '...', type: 'text' }
+      ],
+      confidence: 0.92
+    };
+    
+    setProcessedData(mockResponse);
+    setIsProcessing(false);
+  };
+
+  const startVoiceInput = () => {
+    setIsListening(true);
+    
+    // Simulate voice input - in real implementation, use Web Speech API
+    setTimeout(() => {
+      const mockVoiceText = "I am filing a claim against ABC Company for breach of contract. The incident occurred on January 15th, 2024. I am seeking $5,000 in damages for unpaid services rendered under our agreement dated December 1st, 2023.";
+      setPrompt(mockVoiceText);
+      setIsListening(false);
+    }, 3000);
+  };
+
+  const generatePDF = async () => {
+    if (!processedData) return;
+    
+    // Simulate PDF generation
+    console.log('Generating PDF with data:', processedData);
+    alert('PDF generation would happen here - integrating with PDF library like pdf-lib or jsPDF');
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Zap className="w-6 h-6 text-blue-600" />
+            AutoFormBot - AI-Powered Form Filling
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Text Input */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Describe your case or situation:</label>
+              <Textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="I need to file a claim for breach of contract. The defendant owes me $5,000 for services rendered..."
+                rows={6}
+                className="resize-none"
+              />
+            </div>
+            
+            {/* Voice Input */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Or use voice input:</label>
+              <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <Button
+                  onClick={startVoiceInput}
+                  disabled={isListening}
+                  variant={isListening ? "destructive" : "outline"}
+                  className="w-full"
+                >
+                  <Mic className="w-4 h-4 mr-2" />
+                  {isListening ? 'Listening...' : 'Start Voice Input'}
+                </Button>
+                {isListening && (
+                  <p className="text-sm text-gray-600 mt-2">
+                    Speak clearly about your case details...
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <Button
+            onClick={() => processWithAI(prompt)}
+            disabled={!prompt.trim() || isProcessing}
+            className="w-full"
+          >
+            {isProcessing ? 'Processing with AI...' : 'Process with AutoFormBot'}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* AI Processing Results */}
+      {processedData && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="w-5 h-5" />
+              AI Analysis Results
+              <span className="text-sm bg-green-100 text-green-700 px-2 py-1 rounded">
+                {Math.round(processedData.confidence * 100)}% Confidence
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-medium text-lg">{processedData.formType}</h3>
+                <p className="text-sm text-gray-600">Form fields extracted and populated:</p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {processedData.fields.map((field, index) => (
+                  <div key={index} className="border rounded-lg p-3">
+                    <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                      {field.name}
+                    </label>
+                    <div className="mt-1 text-sm">{field.value}</div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="flex gap-2 pt-4">
+                <Button onClick={generatePDF} className="flex-1">
+                  Generate Filled PDF
+                </Button>
+                <Button variant="outline" className="flex-1">
+                  Edit Fields
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+};
+
+export default AutoFormBot;
